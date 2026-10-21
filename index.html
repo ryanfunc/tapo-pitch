@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tapo 归因底座 · 提案</title>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{ color-scheme:light; --navy:#0f1e33; --paper:#f4f6f9; --ink:#17222f; --muted:#5c6b7a;
+    --cyan:#2ea6c9; --cyan-dk:#1d7f9e; --line:#d6dde5; }
+  *{ box-sizing:border-box; }
+  body{ margin:0; background:var(--paper); color:var(--ink);
+    font-family:"IBM Plex Sans",-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+    font-size:15px; line-height:1.65; -webkit-font-smoothing:antialiased; }
+  .mono{ font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; }
+  header{ background:var(--navy); color:#eaf1f7; padding:56px 32px 46px; position:relative; overflow:hidden; }
+  header:before{ content:""; position:absolute; inset:0;
+    background-image:linear-gradient(rgba(120,180,210,.07) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(120,180,210,.07) 1px,transparent 1px); background-size:34px 34px; }
+  .hin{ position:relative; max-width:760px; margin:0 auto; }
+  .eyebrow{ font-family:"IBM Plex Mono",Consolas,monospace; font-size:11px; letter-spacing:.24em;
+    text-transform:uppercase; color:#7fd0e6; }
+  h1{ font-family:"Archivo","Segoe UI","PingFang SC",sans-serif; font-weight:800; font-size:34px;
+    line-height:1.15; margin:12px 0 8px; letter-spacing:-.01em; }
+  .thesis{ color:#cfdce6; font-size:15.5px; max-width:600px; margin:0; }
+  .thesis b{ color:#fff; }
+  main{ max-width:760px; margin:0 auto; padding:36px 32px 56px; }
+  .cards{ display:grid; gap:14px; }
+  a.card{ display:block; text-decoration:none; color:inherit; background:#fff; border:1px solid var(--line);
+    border-left:3px solid var(--cyan); padding:18px 20px; border-radius:2px; transition:border-color .15s, transform .15s; }
+  a.card:hover{ border-left-color:var(--cyan-dk); transform:translateY(-1px); }
+  a.card .k{ font-family:"IBM Plex Mono",Consolas,monospace; font-size:10.5px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--cyan-dk); }
+  a.card .t{ font-family:"Archivo","Segoe UI","PingFang SC",sans-serif; font-size:17px; font-weight:700; margin:4px 0 3px; }
+  a.card .d{ font-size:13.5px; color:var(--muted); }
+  .note{ margin-top:22px; font-size:12px; color:var(--muted); border-top:1px solid var(--line); padding-top:14px; }
+  @media (max-width:640px){ h1{ font-size:26px; } header,main{ padding-left:20px; padding-right:20px; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="hin">
+    <div class="eyebrow">Tapo · TP-Link 智能家居 · 提案</div>
+    <h1>第一方数据底座与可校准 MTA</h1>
+    <p class="thesis">多触点归因的八成成败，<b>不在模型，在建模之前</b>——决定在 GTM 有没有把 click ID、consent 状态、和能把"同一个人"串起来的身份键，一起落进 BigQuery。</p>
+  </div>
+</header>
+
+<main>
+  <div class="cards">
+    <a class="card" href="40_preread.html">
+      <div class="k">Pre-Read · 5 分钟</div>
+      <div class="t">会前预读（一页纸）</div>
+      <div class="d">口径分层、数据流、两阶段路线、我们不承诺什么——开会前看这一页就够。</div>
+    </a>
+    <a class="card" href="Tapo_sGTM.html">
+      <div class="k">Full Deck · 9 节</div>
+      <div class="t">完整方案</div>
+      <div class="d">五个断点、目标架构、为什么是 sGTM、身份解析、模型与校准、路线图、验收红线、软肋与应对、合作形态。</div>
+    </a>
+  </div>
+  <div class="note">本文档为讨论稿，不含效果承诺；所有 KPI 与排期以双方确认的 SOW 为准。</div>
+</main>
+</body>
+</html>
