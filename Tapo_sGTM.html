@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tapo 归因底座 · 第一方数据与可校准 MTA 提案</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" media="print" onload="this.media='all'" href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root{
+    color-scheme: light;
+    --navy:#0f1e33; --navy2:#16293f; --paper:#f4f6f9; --ink:#17222f; --muted:#5c6b7a;
+    --cyan:#2ea6c9; --cyan-dk:#1d7f9e; --cyan-soft:#e4f2f7;
+    --amber:#c9791f; --amber-soft:#f9efe0;
+    --green:#2f8f5b; --green-soft:#e6f3ec;
+    --red:#b23b3b; --red-soft:#fbeeee;
+    --line:#d6dde5;
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0; background:var(--paper); color:var(--ink);
+    font-family:"IBM Plex Sans",-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei","Hiragino Sans GB",sans-serif;
+    font-size:15px; line-height:1.62; -webkit-font-smoothing:antialiased;
+  }
+  .wrap{ max-width:980px; margin:0 auto; }
+  .mono{ font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; }
+  .eyebrow{ font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:11.5px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--cyan-dk); }
+  /* HERO */
+  .hero{ background:var(--navy); color:#eaf1f7; padding:64px 40px 52px; position:relative; overflow:hidden; }
+  .hero:before{ content:""; position:absolute; inset:0;
+    background-image:linear-gradient(rgba(120,180,210,.07) 1px,transparent 1px),
+      linear-gradient(90deg,rgba(120,180,210,.07) 1px,transparent 1px);
+    background-size:34px 34px; }
+  .hero-in{ position:relative; max-width:980px; margin:0 auto; }
+  .hero .eyebrow{ color:#7fd0e6; }
+  .hero h1{ font-family:"Archivo","Segoe UI","Helvetica Neue",Arial,sans-serif; font-weight:800; font-size:40px; line-height:1.08;
+    margin:14px 0 4px; letter-spacing:-.01em; }
+  .hero h1 .cjk{ font-family:"Archivo","Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+  .hero .vs{ color:#7fd0e6; }
+  .hero .sub{ font-size:13px; color:#93b0c6; font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; letter-spacing:.06em; }
+  .rule{ width:56px; height:3px; background:var(--cyan); margin:22px 0; border:none; }
+  .thesis{ font-size:18px; line-height:1.66; max-width:760px; color:#d3e0ea; }
+  .thesis b{ color:#fff; }
+  .thesis em{ color:#7fd0e6; font-style:normal; }
+  /* SECTIONS */
+  section{ padding:44px 40px; border-top:1px solid var(--line); }
+  section:first-of-type{ border-top:none; }
+  .sec-head{ display:flex; align-items:baseline; gap:14px; margin-bottom:6px; }
+  .sec-head .n{ font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:13px; color:var(--cyan-dk); font-weight:500; }
+  h2{ font-family:"Archivo","Segoe UI","Helvetica Neue",Arial,sans-serif; font-weight:700; font-size:25px; margin:0; letter-spacing:-.01em; line-height:1.2; }
+  h2 .cjk{ font-family:"Archivo","Segoe UI","PingFang SC","Microsoft YaHei",sans-serif; }
+  .lead{ color:var(--muted); margin:8px 0 22px; max-width:760px; }
+  .lead b{ color:var(--ink); }
+  p{ margin:0 0 14px; } p:last-child{ margin-bottom:0; }
+  h3{ font-family:"Archivo","Segoe UI","PingFang SC",sans-serif; font-size:16px; margin:0 0 8px; }
+  /* TABLES */
+  table{ width:100%; border-collapse:collapse; font-size:14px; border:1px solid var(--line); }
+  th,td{ padding:11px 14px; text-align:left; border-bottom:1px solid var(--line); vertical-align:top; }
+  thead th{ background:var(--navy); color:#eaf1f7; font-weight:600; font-family:"Archivo","Segoe UI","Helvetica Neue",Arial,sans-serif;
+    letter-spacing:.01em; font-size:13px; }
+  thead th .sm{ display:block; font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:11px; color:#8fb6c9;
+    font-weight:400; letter-spacing:.05em; }
+  tbody tr:nth-child(even){ background:#fafcfd; }
+  td:first-child{ font-weight:600; color:var(--navy); }
+  .spec td:first-child{ font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:12.5px; color:var(--muted); font-weight:400; width:150px; }
+  .yes{ color:var(--green); font-weight:600; } .no{ color:var(--red); font-weight:600; }
+  .tag{ display:inline-block; font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:10px; font-weight:500;
+    background:var(--cyan); color:#fff; padding:1px 7px; border-radius:3px; letter-spacing:.06em;
+    vertical-align:middle; margin-left:6px; }
+  .tag.warn{ background:var(--amber); } .tag.crit{ background:var(--red); }
+  .sm2{ display:block; font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:10.5px; letter-spacing:.08em;
+    color:#93a2b0; font-weight:400; text-transform:uppercase; } .tag.ok{ background:var(--green); }
+  /* PLATES */
+  .plates{ display:grid; grid-template-columns:repeat(2,1fr); gap:14px; }
+  .plates.three{ grid-template-columns:repeat(3,1fr); margin-bottom:20px; }
+  .plate{ background:#fff; border:1px solid var(--line); border-radius:2px; padding:16px 18px; position:relative; }
+  .plate:before,.plate:after{ content:""; position:absolute; width:10px; height:10px; border:1.5px solid var(--cyan); }
+  .plate:before{ top:8px; left:8px; border-right:none; border-bottom:none; }
+  .plate:after{ bottom:8px; right:8px; border-left:none; border-top:none; }
+  .plate .k{ font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:11px; letter-spacing:.12em;
+    text-transform:uppercase; color:var(--cyan-dk); }
+  .plate .v{ font-size:14.5px; margin-top:5px; } .plate .v b{ font-family:"Archivo","Segoe UI","Helvetica Neue",Arial,sans-serif; }
+  /* FLOW */
+  .flow{ border:1px solid var(--line); background:#fff; padding:22px; border-radius:2px; }
+  .node{ border:1px solid var(--line); border-left:3px solid var(--cyan); background:#fafcfd; padding:11px 14px; border-radius:2px; }
+  .node .t{ display:block; font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:11px; letter-spacing:.1em;
+    text-transform:uppercase; color:var(--cyan-dk); }
+  .node .d{ font-size:14px; }
+  .node .d b{ font-family:"Archivo","Segoe UI","Helvetica Neue",Arial,sans-serif; }
+  .node.split{ border-left-color:var(--amber); background:var(--amber-soft); }
+  .node.ware{ border-left-color:var(--green); background:var(--green-soft); }
+  .arrow{ font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:11.5px; color:var(--muted); text-align:center; padding:7px 0; }
+  .two{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .two > div{ }
+  /* CALLOUT */
+  .callout{ background:#fff; border:1px solid var(--line); border-left:3px solid var(--cyan);
+    padding:14px 18px; margin:20px 0 0; border-radius:2px; font-size:14.5px; }
+  .callout.warn{ border-left-color:var(--amber); background:var(--amber-soft); }
+  .callout.key{ border-left-color:var(--green); background:var(--green-soft); }
+  .callout .h{ font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:11px; letter-spacing:.14em;
+    text-transform:uppercase; color:var(--cyan-dk); display:block; margin-bottom:4px; }
+  .callout.warn .h{ color:var(--amber); } .callout.key .h{ color:var(--green); }
+  /* CODE */
+  pre{ background:var(--navy); color:#d7e6f0; padding:16px 18px; border-radius:2px; overflow-x:auto;
+    font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace; font-size:12px; line-height:1.7; margin:14px 0 0; }
+  pre .c{ color:#7f9ab0; } pre .k{ color:#7fd0e6; } pre .s{ color:#c9e08a; }
+  /* WEAK ROWS */
+  .weak{ border:1px solid var(--line); border-radius:2px; overflow:hidden; }
+  .weak-head{ display:grid; grid-template-columns:1fr 1fr; font-family:"IBM Plex Mono",Consolas,"SF Mono",Menlo,monospace;
+    font-size:11px; letter-spacing:.12em; text-transform:uppercase; }
+  .weak-head div{ padding:9px 18px; color:#fff; }
+  .weak-head .hw{ background:var(--amber); } .weak-head .hr{ background:var(--green); }
+  .weak-row{ display:grid; grid-template-columns:1fr 1fr; border-top:1px solid var(--line); }
+  .weak-row:first-of-type{ border-top:none; }
+  .weak-row .w,.weak-row .r{ padding:14px 18px; font-size:13.8px; }
+  .weak-row .w{ background:var(--amber-soft); border-right:1px solid var(--line); }
+  .weak-row .w .t{ font-weight:600; color:var(--amber); display:block; margin-bottom:3px; }
+  .weak-row .r .t{ font-weight:600; color:var(--green); display:block; margin-bottom:3px; }
+  /* MISC */
+  ul.tight{ margin:0; padding-left:18px; font-size:14px; } ul.tight li{ margin:6px 0; }
+  ol.tight{ margin:0; padding-left:20px; font-size:14px; } ol.tight li{ margin:7px 0; }
+  .kpi{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-top:18px; }
+  .kpi .box{ background:#fff; border:1px solid var(--line); padding:14px 16px; border-radius:2px; }
+  .kpi .box .n{ font-family:"Archivo","Segoe UI","Helvetica Neue",Arial,sans-serif; font-size:26px; font-weight:700; color:var(--cyan-dk); line-height:1.1; }
+  .kpi .box .l{ font-size:12.5px; color:var(--muted); margin-top:4px; }
+  .concl{ background:var(--navy); color:#eaf1f7; padding:40px; }
+  .concl-in{ max-width:980px; margin:0 auto; }
+  .concl .eyebrow{ color:#7fd0e6; }
+  .concl p{ font-size:19px; line-height:1.66; margin:14px 0 0; max-width:780px; }
+  .concl b{ color:#7fd0e6; }
+  footer{ padding:26px 40px 40px; font-size:12px; color:var(--muted); }
+  footer .note{ border-top:1px solid var(--line); padding-top:16px; }
+  footer .disc{ background:#fff; border:1px solid var(--line); border-left:3px solid var(--amber);
+    padding:10px 14px; margin-top:12px; border-radius:2px; color:#4a5763; }
+  @media (max-width:820px){
+    .hero{ padding:44px 22px 36px; } .hero h1{ font-size:30px; }
+    section,.concl,footer,.hero-in{ padding-left:22px; padding-right:22px; }
+    section{ padding-top:34px; padding-bottom:34px; }
+    .plates,.plates.three,.two,.weak-row,.weak-head,.kpi{ grid-template-columns:1fr; }
+    .weak-row .w{ border-right:none; border-bottom:1px solid var(--line); }
+    .spec td:first-child{ width:auto; }
+  }
+  @media print{
+    body{ background:#fff; font-size:10.5px; } .hero:before{ opacity:.5; }
+    section,.concl{ page-break-inside:avoid; } .plate:before,.plate:after{ display:none; }
+    @page{ margin:12mm; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-in">
+    <div class="eyebrow">提案 · 诊断与架构 · Tapo / TP-Link 智能家居</div>
+    <h1><span class="cjk">Tapo 归因底座</span> <span class="vs">/</span> 从 GA4 导出到可校准 MTA</h1>
+    <div class="sub">FIRST-PARTY DATA RAIL · GTM / CAPI / CMP / CONSENT MODE V2 / BIGQUERY MTA</div>
+    <hr class="rule">
+    <p class="thesis">你们缺的不是一个归因模型，而是一条能把"<b>同一个人的跨渠道 session</b>"稳定串起来、并且能被实验校准的数据管道。模型三个月后再建都不晚——<em>但埋点、click ID、consent 状态这三样，晚一个月就永久缺一个月的历史，补不回来。</em></p>
+  </div>
+</header>
+
+<div class="wrap">
+
+<!-- 01 -->
+<section>
+  <div class="sec-head"><span class="n">01</span><h2><span class="cjk">先定义对：MTA 不回答"谁该记功"，只回答"钱往哪挪"</span></h2></div>
+  <p class="lead">同一笔订单，Meta 说它带的、Google 说品牌词带的、Amazon 说站内搜的、财务看的是 MER。四个答案都"有据可查"，但<b>没有任何两个能加得起来</b>。所以第一步不是选模型，是把口径分层——每层只回答一个问题，谁也不越界。</p>
+  <table>
+    <thead><tr><th>口径层<span class="sm">LAYER</span></th><th>回答的问题</th><th>数据来源</th><th>可信度</th><th>用来干什么</th></tr></thead>
+    <tbody>
+      <tr><td>L1 平台自报<span class="sm2">PLATFORM</span></td><td>平台认为它带来了多少转化</td><td>Meta / Google / TikTok / Amazon 各自的自归因后台</td><td>单个平台内可信，跨平台不可加</td><td>日常出价、素材迭代、跑量节奏</td></tr>
+      <tr><td>L2 仓内 MTA<span class="sm2">WAREHOUSE</span></td><td>在我们<b>能观测到</b>的路径里，每个触点的边际贡献</td><td>GA4→BigQuery 导出 + sGTM 服务端日志 + Shopify 订单 + 花费表 + consent 状态</td><td>中——取决于身份覆盖率与采集完整度</td><td>预算再分配、渠道/素材/人群排序、月度复盘</td></tr>
+      <tr><td>L3 增量实验<span class="sm2">CAUSAL</span></td><td>如果把它关掉，会发生什么</td><td>geo holdout、Meta Conversion Lift、平台增量测试、MMM</td><td>高，但频率低、成本高、样本期长</td><td>校准 L2 的系数，回答"到底有没有用"</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn"><span class="h">最常见的两个致命错</span>
+  ① 用 L1 做结算（平台各自报功，预算按"谁喊得响"分配）；② 用 L2 做日常调优（模型有 2–3 周滞后期，追不上日内出价）。<b>L2 定方向，L1 调速，L3 定生死</b>——三层各就各位，才谈得上"多触点归因"。</div>
+</section>
+
+<!-- 02 -->
+<section>
+  <div class="sec-head"><span class="n">02</span><h2><span class="cjk">你们的现状：五个断点，从末端往前修</span></h2></div>
+  <p class="lead">下面是这类 Shopify 独立站 + 多市场 + 平台电商并行的品牌，<b>几乎必然存在</b>的五个断点。标 <span class="tag warn">待确认</span> 的是需要现场用你们的后台核实的；核实完，这份表就是诊断报告的第一页。</p>
+  <div class="plates three">
+    <div class="plate"><div class="k">品类 01 · 低客单、高频次</div><div class="v">摄像头是"低毛利、高件数、短决策"的生意，CAC 对归因误差极度敏感——<b>1% 的重复计</b>就是真金白银，而平台后台常见的重复计在 <b>5–15%</b> 量级。</div></div>
+    <div class="plate"><div class="k">品类 02 · 站上种草、平台收割</div><div class="v">大量用户在独立站比参数、看评测，最后去 Amazon 下单。只看 DTC 的归因会<b>系统性低估种草、高估品牌词与站内搜索</b>。</div></div>
+    <div class="plate"><div class="k">品类 03 · 多市场、多语言</div><div class="v">EU 的 consent 严格度、US 的 opt-out 逻辑、各市场渠道结构完全不同。<b>容器可以多，事件 schema 必须一套</b>，否则做不出可比的多市场模型。</div></div>
+  </div>
+  <table>
+    <thead><tr><th>断点<span class="sm">BREAK</span></th><th>典型症状</th><th>代价（用钱说）</th><th>补法</th></tr></thead>
+    <tbody>
+      <tr><td>① GTM 层<span class="tag warn">待确认</span></td><td>多市场多容器、代理留下的孤儿 tag、GA4 与 Ads 各配一套、无服务端容器；同一 Purchase 被 2–3 个 tag 触发</td><td>转化重复计 5–15%，ROAS 虚高，预算按虚高数据放大</td><td>容器审计 → 统一事件 schema → sGTM 单一分发口 → event_id 去重</td></tr>
+      <tr><td>② 采集层<span class="tag warn">待确认</span></td><td>checkout / purchase 深事件还靠前端 JS；CAPI 没开或只开 browser；EMQ 4–5 分</td><td>iOS + 广告拦截 + ITP 下丢 20–40% 转化；平台学习期吃不到干净信号</td><td>Shopify Web Pixels（Customer Events）+ 服务端 CAPI 双发 + 参数补全</td></tr>
+      <tr><td>③ 身份层<span class="tag warn">待确认</span></td><td>只有 GA4 的 user_pseudo_id；没有服务端下发的第一方 visitor_id；邮箱/订单只在 Shopify 里</td><td>跨设备、跨会话断链——"同一个人来过三次"被记成三个新客，MTA 的前提直接塌一半</td><td>服务端第一方 cookie + 订单/登录/邮箱 hash 图 + click ID 全量入仓</td></tr>
+      <tr><td>④ 入仓层<span class="tag warn">待确认</span></td><td>BQ 里只有 GA4 导出；没有订单明细、平台花费、consent 状态、服务端事件日志</td><td>建不出模型；勉强建出来也只能看到 DTC 那一半真相</td><td>补 4 张源表 + dbt 分层（stg / int / fct / dim）</td></tr>
+      <tr><td>⑤ 口径层<span class="tag warn">待确认</span></td><td>GA4 数据驱动归因和平台后台混着看；Amazon 与零售完全在口径之外</td><td>品牌词与 Amazon 溢出互相抢功；站内广告"看起来"一直在赢</td><td>三层口径制度 + Amazon 溢出专项测量（见 06 + 08）</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn"><span class="h">一条我们已经在公开信息里核到的线索</span>
+  你们的产品页有三个"出口"：本域结算 <span class="mono">tapo.com/us/product</span>、同根子域的 Shopify 商店 <span class="mono">us.store.tapo.com</span>、以及跨注册域回到母公司的 <span class="mono">www.tp-link.com/us</span>；姊妹品牌 Kasa 的商品 CTA 还直接跳 Amazon。<br>
+  每多一个出口，身份就断一次：子域靠 cookie 覆盖根域能接上（须验证）；跨注册域必须<b>双向装同一个 tag</b>才能搬 client_id；<b>referral 排除只改来源归属、不搬 cookie——它遮丑，不接线</b>。<br>
+  <b>所以先记住一句：MTA 的边界，等于你们能装 tag、且能拿到 consent 的域名集合。</b>边界之外的（母公司域、Amazon、零售），只能靠溢出测量与 MMM，不能靠模型硬补。</div>
+
+  <div class="callout"><span class="h">为什么从末端往前修</span>③④ 决定模型能不能跑，①② 决定数据干不干净，⑤ 决定跑出来的数有没有人信。<b>先修③④（一次性投入，越早越省历史），再修①②（工程活），最后立⑤（组织约定）。</b>反过来做，就是从最容易争吵的地方开始。</div>
+</section>
+
+<!-- 03 -->
+<section>
+  <div class="sec-head"><span class="n">03</span><h2><span class="cjk">目标架构：一条管道、四个阀门、分两路走</span></h2></div>
+  <p class="lead">GTM（Tag Manager，不是 go-to-market）、CAPI、CMP、Consent Mode v2 不是四个独立项目，是同一根数据管上的四个阀门。装对了，MTA 只是管末的一个查询；装错了，模型再花哨也是在洗脏水。</p>
+
+  <div class="flow">
+    <div class="node"><span class="t">触点 · TOUCHPOINT</span><span class="d">Meta / Google / TikTok / Pinterest / KOL &amp; Affiliate / 邮件 / 自然搜索 / 站内搜 —— 每条都带 <b>fbclid · gclid · ttclid · msclkid · UTM</b></span></div>
+    <div class="arrow">↓ 落地页（Shopify）现场捕获</div>
+    <div class="node"><span class="t">采集层 · COLLECTION</span><span class="d">客户端 <b>Web Pixels</b>（Customer Events，唯一官方 checkout 采集口）+ 服务端 <b>sGTM</b>（自有子域 <span class="mono">m.tapo.com</span>）+ <b>CMP</b> 把 consent 状态随每个事件一起带出</span></div>
+    <div class="arrow">↓ 同一事件双发，<span class="mono">event_id</span> 去重（否则 Purchase 双计、ROAS 虚高）</div>
+    <div class="node split"><span class="t">分两路 · SPLIT</span><span class="d"><b>路 A · 实时回传</b>：Meta CAPI + Google Enhanced Conversions + TikTok Events API → 喂算法出学习期（<b>算法只吃这条，不吃数仓结果</b>）<br><b>路 B · 入仓沉淀</b>：GA4→BigQuery 全量导出 + sGTM 原始事件日志 → 真相层</span></div>
+    <div class="arrow">↓ 路 B（Phase 2 才建，采集在 Phase 1 就开）</div>
+    <div class="node ware"><span class="t">仓内建模 · MODELING（dbt）</span><span class="d">身份解析（hash email 确定性 + visitor_id 概率拼接）→ 路径重建 → <b>Markov / Shapley 多触点归因</b> → 实验校准 → 预算再分配建议</span></div>
+    <div class="arrow">↓</div>
+    <div class="node"><span class="t">输出 · ACTIVATION</span><span class="d">BI 看板（渠道 / 素材 / 人群 / 新老客 / consent 分层）+ <b>反向 ETL</b>（Hightouch / Census）把仓内拼接后的转化与高价值人群回灌 Meta / Google / TikTok</span></div>
+  </div>
+
+  <h3 style="margin-top:30px;">为什么是 sGTM，而不是"三个原生插件各自 CAPI"</h3>
+  <p class="lead" style="margin-bottom:14px;">全场最容易被跳过、也最影响结论的一段。你们大概率已经装了 Shopify 的三个官方渠道——所以问题从来不是"有没有服务端回传"，是<b>三个服务端通道之间对不上账</b>。</p>
+
+  <table>
+    <thead><tr><th>维度<span class="sm">DIMENSION</span></th><th>只用 Web GTM（浏览器端）</th><th>Shopify 三个原生插件</th><th>Web GTM + sGTM</th></tr></thead>
+    <tbody>
+      <tr><td>真实网络出口</td><td><span class="no">一进三出</span>：手机分别向 google-analytics / connect.facebook / analytics.tiktok 发三个请求</td><td><span class="no">三套黑盒通道</span>：各插件按自己的钩子、自己的时机各发各的</td><td><span class="yes">一进一出</span>：手机只向 <span class="mono">m.tapo.com</span> 发一个请求，机房内再分发</td></tr>
+      <tr><td>抗拦截 / 抗丢包</td><td><span class="no">最差</span>：各家脚本被拦截的力度不同；用户看到成功页一秒内关页面，排在队尾的请求直接被掐断</td><td><span class="no">中</span>：服务端那条稳，浏览器那条照样被拦</td><td><span class="yes">强</span>：同源请求不被插件拦；请求落在自己服务器上，不依赖页面还活着</td></tr>
+      <tr><td>三家数字能不能对账</td><td><span class="no">不能</span>：同一笔订单，Google 收到、Meta 收到、TikTok 没收到</td><td><span class="no">不能</span>：三套触发钩子、三套 event_id 规则、三个去重成功率</td><td><span class="yes">能</span>：同一个 event_id、同一份载荷、同一个时间戳出门</td></tr>
+      <tr><td>事件级去重</td><td>谈不上——没有服务端第二条腿</td><td>各自去各自的，<b>跨平台无法统一</b></td><td><span class="yes">统一</span>：id 在源头生成一次，两条腿共用</td></tr>
+      <tr><td>可审计 / 可回放</td><td><span class="no">无</span>：数据只在平台后台</td><td><span class="no">无</span>：Shopify 服务器直发平台，你拿不到副本</td><td><span class="yes">有</span>：原始请求落进自己的仓，可随时复算</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><span class="h">"同一个触发器"为什么不等于"同一个出口"</span>
+  Web GTM 里挂三个 tag，看起来是一个触发器同时点火；但在用户手机上发生的是<b>三场独立的网络请求</b>。<br>
+  ① <b>拦截名单不一样</b>：隐私插件对社交追踪器（Meta / TikTok）的封杀名单更新更快、更狠——所以月末你会看到"Google 收到 80 单、Meta 65 单、TikTok 58 单"。<br>
+  ② <b>竞态丢包</b>：移动网络下用户在成功页停留常常不到一秒，排在队尾那个请求会被页面关闭直接掐断。<br>
+  ③ 这不是"参数没对齐"，是<b>物理上就发了三次</b>。sGTM 把这三发收敛成一发，剩下的三发发生在机房里——那里没有拦截器，也不会被关页面。<br>
+  <b>但"天然一致"要说准：</b>同源同载荷、口径可对齐，不等于三家 100% 都收到——API 失败、token 过期、匹配失败仍然会发生。一致性解决的是"起点相同"，送达率仍要监控。</div>
+
+  <h3 style="margin-top:30px;">同一个 sGTM，部署方式不同，Cookie 寿命差 50 倍</h3>
+  <p class="lead" style="margin-bottom:14px;">这段最容易被供应商含糊过去。WebKit 官方文档里有一条大多数人没读过：<b>ITP 会检测"第三方 CNAME 伪装"和"第三方 IP 伪装"，并把这类响应里种下的 Cookie 一并压到 7 天</b>（原文标题就叫 "CNAME and Third-Party IP Address Cloaking Defense"）。换句话说：<b>sGTM 能不能延长 Cookie，不看它叫不叫 sGTM，看它<u>怎么解析</u>。</b></p>
+
+  <table class="spec">
+    <thead><tr><th>部署方式<span class="sm">DEPLOYMENT</span></th><th>Safari 眼里的身份</th><th>Cookie 上限</th></tr></thead>
+    <tbody>
+      <tr><td>默认端点<br>xxx.run.app</td><td>第三方</td><td><span class="no">服务端 Cookie 根本设不了</span>（Google 官方：只能设 JS Cookie → 落到 7 天）</td></tr>
+      <tr><td>子域裸 CNAME<br>→ ghs.googlehosted.com</td><td>第三方 CNAME 伪装</td><td><span class="no">7 天</span>（WebKit 原文点名）</td></tr>
+      <tr><td>子域 A 记录<br>→ 第三方 IP</td><td>第三方 IP 伪装</td><td><span class="no">7 天</span>（WebKit 原文点名）</td></tr>
+      <tr><td>子域挂自家 CDN<br>（与主站同一 CDN 账号）</td><td>第一方</td><td><span class="yes">无上限</span>（Google 官方：子域也"完全获享"）</td></tr>
+      <tr><td>同源路径反代<br>www.tapo.com/metrics</td><td>第一方（最干净）</td><td><span class="yes">无上限</span>——官方文档里明确列为<b>最佳实践</b></td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout warn"><span class="h">所以"我们上了 sGTM"这句话本身没有意义</span>
+  装一个裸 CNAME 的子域 sGTM，等于花了钱、多了一个运维点，Cookie 还是 7 天——<b>子域不是原罪，伪装才是</b>。真正的交付物是"同源反代"这一层，而它通常落在 CDN / IT 手上，不在投放团队手上。这也是为什么这件事必须有人跨部门推。<br>
+  <b>验收方式很硬：</b>在 Safari 里种一次 Cookie，八天后再看它还在不在。在不在，就是"部署对不对"的唯一答案。</div>
+
+  <h3 style="margin-top:26px;">四个关键设计决策（这四条决定项目成不成，不决定好不好看）</h3>
+  <div class="plates">
+    <div class="plate"><div class="k">决策 01 · 同源反代，不是裸子域</div><div class="v">首选 <b>www.tapo.com/metrics</b> 由自家 CDN 反代到 sGTM；次选与主站同一 CDN 账号的子域。原因见上一节：<b>裸 CNAME 到第三方托管域名 = WebKit 明文的 7 天上限</b>。这一步通常要 IT / CDN 出手，是整个项目里唯一必须跨部门完成的技术动作。</div></div>
+    <div class="plate"><div class="k">决策 02 · consent 状态入仓</div><div class="v">把每个事件的 consent 状态作为<b>一列</b>落进 BigQuery。否则模型会把"没同意的人"当成"没来过"，系统性低估上层漏斗——而且永远查不出错在哪。</div></div>
+    <div class="plate"><div class="k">决策 03 · Markov 为主模型</div><div class="v">不用 last-click 的直觉，也不用 DDA 的黑箱。Markov 的<b>移除效应</b>无负权重、可解释、对长尾触点稳健——适合摄像头这种"决策短但触点杂"的品类。</div></div>
+    <div class="plate"><div class="k">决策 04 · 反向 ETL 闭环</div><div class="v">仓库里算出来的真相，必须能<b>打回平台</b>（离线转化 + 高价值人群）。只出报告不回传，等于花两次钱：一次买数据，一次买没人执行的结论。</div></div>
+  </div>
+
+  <div class="callout warn"><span class="h">先把一个误解拆掉：CAPI 不是 sGTM 的前置条件——但"对得上账"是</span>
+  Shopify 后台 Facebook &amp; Instagram 渠道的 Data sharing 选到 <b>Enhanced / Maximum</b>，Purchase 就已经是<b>服务端 CAPI</b> 在发，带 name / location / email / phone 做匹配（Shopify 原文：server-to-server 的数据不会被浏览器广告拦截器挡住）；Google &amp; YouTube 同理可开 Enhanced Conversions。<b>所以"有没有服务端回传"是个开关，一周能开完。</b><br>
+  但只要你们同时开三个插件，就立刻回到上一张表的问题：<b>三条通道、三套 event_id、三份对不上的漏斗</b>。开关解决"有没有"，sGTM 解决"对不对得上、留不留得下、能不能审计"。<b>如果只想要后台一个开关，今天就可以把这个话题关掉；既然要做多触点归因，就绕不开"一个出口"。</b></div>
+</section>
+
+<!-- 04 -->
+<section>
+  <div class="sec-head"><span class="n">04</span><h2><span class="cjk">核心：同一个消费者的跨渠道 session，到底怎么串</span></h2></div>
+  <p class="lead">这是你们最感兴趣、也最容易做错的一段。MTA 的成败 <b>80% 在这一步</b>：身份串得起来，模型才有输入；串不起来，后面全是给噪声做回归。</p>
+
+  <table class="spec">
+    <thead><tr><th>层<span class="sm">IDENTITY</span></th><th>用什么键</th><th>能覆盖什么</th><th>边界</th></tr></thead>
+    <tbody>
+      <tr><td>确定性<br>DETERMINISTIC</td><td>下单邮箱（hash）、登录账号、order_id、newsletter 订阅、客服工单</td><td>同一人跨设备、跨会话、跨月——<b>只要它留下一处 PII</b></td><td>只覆盖"留过痕"的用户；匿名浏览期仍然黑</td></tr>
+      <tr><td>概率性<br>PROBABILISTIC</td><td>服务端 visitor_id（第一方 cookie）、user_pseudo_id、设备 + 浏览器 + 时区组合</td><td>匿名期内的回访与跨标签页行为</td><td>ITP 7 天截断、清 cookie、隐私浏览器 → 断链；<b>不用 IP 指纹硬拼</b>（合规与误配双输）</td></tr>
+      <tr><td>会话级<br>SESSION</td><td>GA4 的 <span class="mono">session_traffic_source_last_click</span> + <span class="mono">collected_traffic_source</span> + UTM 五段</td><td>单次会话的入口渠道还原</td><td>只回答"这一次从哪来"，不回答"这一人怎么来"</td></tr>
+    </tbody>
+  </table>
+
+  <h3 style="margin-top:26px;">落到 BigQuery：最小可用的五张表</h3>
+<pre><span class="c">-- 1) 清洗层：把 GA4 原始事件压成会话粒度（含 consent 与 click id）</span>
+stg_ga4__sessions          <span class="c">-- session_id, user_pseudo_id, visitor_id, channel, campaign,</span>
+                           <span class="c">-- click_id_type, click_id, consent_state, landing_page, ts</span>
+<span class="c">-- 2) 订单层：Shopify 订单 + 结账页带出的身份与首触信息</span>
+stg_shopify__orders        <span class="c">-- order_id, email_hash, ts, gmv, new_or_returning, 优惠码</span>
+<span class="c">-- 3) 花费层：各平台日粒度花费 / 展示 / 点击（API 直连，不用手工表）</span>
+stg_ads__spend_daily       <span class="c">-- platform, campaign, adset, creative, spend, impressions, clicks</span>
+<span class="c">-- 4) 身份图：一次算好，每天增量维护</span>
+int_identity_graph         <span class="c">-- identity_key, 成员键集合, 置信度, 首次/末次见到时间</span>
+<span class="c">-- 5) 路径与归因结果</span>
+fct_paths                  <span class="c">-- identity_key, 有序 touch 序列, 转化标志, lookback_days</span>
+fct_attribution_daily      <span class="c">-- date, channel, model, credit, credit_low, credit_high</span></pre>
+
+  <div class="two" style="margin-top:20px;">
+    <div class="callout key"><span class="h">路径构建的四条硬规则</span>
+      <ul class="tight">
+        <li><b>回溯窗 90 天 / 转化窗 30 天</b>（可调），一个转化只归属一个身份图</li>
+        <li>渠道口径<b>只用一张维度表</b>定义（channel taxonomy），GA4 默认渠道组不够用——品牌词、KOL、站内搜必须拆开</li>
+        <li>把 <b>consent_state</b> 当维度而不是过滤器：观测到的和建模补全的分开算，再合并</li>
+        <li>每次跑模型都<b>同时跑 4 个模型</b>，模型之间的分歧本身就是信号（分歧大的渠道 = 结论不稳，别急着砍预算）</li>
+      </ul>
+    </div>
+    <div class="callout warn"><span class="h">必须提前承认的天花板</span>
+      匿名期 + 跨设备 + 拒同意 + 线下/零售，这四块<b>结构性看不到</b>。真实可还原的路径占比，能做到 <b>60–85%</b> 就是好成绩，剩下的必须靠 <b>MMM + 增量实验 + 结账后问卷</b>兜底。<br><br>谁跟你说"我们能 100% 还原每一个消费者的完整旅程"，谁就是在卖 dashboard。</div>
+  </div>
+</section>
+
+<!-- 05 -->
+<section>
+  <div class="sec-head"><span class="n">05</span><h2><span class="cjk">模型怎么选、怎么校准、怎么给出能决策的数字</span></h2></div>
+  <p class="lead">每个模型都内置一套"世界应该怎样"的假设。选模型不是选先进，是选<b>假设和你们的生意最不冲突</b>的那一个，然后用实验给它上锁。</p>
+  <table>
+    <thead><tr><th>模型<span class="sm">MODEL</span></th><th>核心假设</th><th>什么时候骗你</th><th>我们的用法</th></tr></thead>
+    <tbody>
+      <tr><td>Last-click</td><td>最后一触决定一切</td><td>品牌词 / 直接访问永远赢；上层种草全被吞</td><td>只做基线对照</td></tr>
+      <tr><td>Linear / Position-based</td><td>触点均分或首末加权</td><td>拍脑袋定权重，无法验证</td><td>敏感性检验</td></tr>
+      <tr><td>Time-decay</td><td>越近越重要</td><td>长决策周期品类被系统性压扁</td><td>敏感性检验</td></tr>
+      <tr><td><b>Markov 移除效应</b></td><td>去掉某触点后转化概率的下降 = 它的贡献</td><td>样本太少时方差大；强共线触点会互相"借功"</td><td><b>主模型</b>——无负权重、可解释、对长尾稳健</td></tr>
+      <tr><td>Shapley value</td><td>合作博弈的公平分摊</td><td>计算贵；对"从未单独出现"的触点偏保守</td><td><b>交叉验证</b>主模型结论</td></tr>
+      <tr><td>Logistic / DDA</td><td>用特征预测转化，按边际效应分摊</td><td>黑箱、共线性敏感、GA4 的 DDA 不透明</td><td>基线 + 与平台口径对齐</td></tr>
+      <tr><td>MMM（后续）</td><td>总量回归，含饱和与滞后</td><td>需要 1–2 年周数据；难以下钻到素材</td><td>补 Amazon/零售/品牌溢出的<b>唯一</b>解法</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout"><span class="h">校准：三票制，不搞一言堂</span>
+  <b>票 1 · geo holdout</b>（每季度打 2 个最大渠道，关 2–4 周看真实掉量）→ <b>票 2 · 平台增量实验</b>（Meta Conversion Lift / Google geo experiment）→ <b>票 3 · 结账后问卷</b>（"您最初从哪知道我们"，最低成本的去卷化独立样本）。<br>
+  三票对不上、MTA 与实验偏差 <b>&gt;15%</b> → 模型重训、渠道定义重审，不解释、不粉饰。</div>
+
+  <div class="kpi">
+    <div class="box"><div class="n">区间</div><div class="l">每个渠道的贡献给 <b>点估计 + 置信区间</b>，不给单一数字。谁敢拿一个精确到小数点的归因百分比去做千万级预算决策，谁就该被质疑。</div></div>
+    <div class="box"><div class="n">4 模型</div><div class="l">Markov / Shapley / DDA / Time-decay 同时跑。分歧小 → 结论可执行；分歧大 → 先做实验再动人。</div></div>
+    <div class="box"><div class="n">90 天</div><div class="l">模型每日跑，口径每季度校准一次，预算重分配每月出一版——<b>节奏比精度更重要</b>。</div></div>
+  </div>
+</section>
+
+<!-- 06 -->
+<section>
+  <div class="sec-head"><span class="n">06</span><h2><span class="cjk">路线图：先采集、后建模，中间只隔一个审计</span></h2></div>
+  <p class="lead">核心原则只有一句：<b>采集与建模解耦</b>。采集现在就开（历史不采，以后补不回来），模型等数据够厚再建（转化量不够，模型算出来的只是噪声的形状）。这不是排期妥协，这是唯一正确的顺序。</p>
+  <table>
+    <thead><tr><th>阶段<span class="sm">PHASE</span></th><th>周期</th><th>交付物</th><th>验收标准</th><th>需要你们谁</th></tr></thead>
+    <tbody>
+      <tr><td>P0 审计<span class="tag">必做</span></td><td>1 周</td><td>GTM/CMP/CAPI/GA4/BQ 现状 gap 清单、事件 schema 草案、90 天路线图、风险登记表</td><td>能指着屏幕说出"这几笔转化现在被重复计了"</td><td>IT + 投放 + 一个能拍板的人</td></tr>
+      <tr><td>P1 采集<span class="tag">先跑起来</span></td><td>3–4 周</td><td>sGTM 容器（自有子域）+ CAPI/EC 双发 + CMP 与 Consent Mode v2 接线 + Web Pixels 事件 + BQ 全量导出 + 身份字段入仓</td><td>无重复计；深事件覆盖率 ≥95%；EMQ ≥7；consent 状态可查</td><td>IT（DNS/GTM 权限）+ 投放 + 法务（隐私文本）</td></tr>
+      <tr><td>P2 建模<span class="tag">重但可回溯</span></td><td>4–6 周</td><td>dbt 项目（stg/int/fct 分层）+ 身份图 + 路径表 + 4 模型归因 + 看板 + 反向 ETL</td><td>身份覆盖率、路径完整度达标；模型间分歧可解释</td><td>数据（BQ 权限）+ 投放（提供渠道定义）</td></tr>
+      <tr><td>P3 运营化</td><td>持续</td><td>月度 MTA 复盘 + 预算再分配建议 + 季度实验校准 + MMM（可选，覆盖 Amazon/零售）</td><td>每次建议都能追溯到一次实验或一组区间</td><td>增长负责人（唯一 owner）</td></tr>
+    </tbody>
+  </table>
+  <div class="callout key"><span class="h">一个必须当场讲清的排期判断</span>
+  <b>GA4→BigQuery 导出和 CAPI 双发，第一周就能开</b>，不需要等 sGTM 全量就绪；sGTM 是"尽早就位"而不是"上线前置"。把 sGTM 设成关键路径，是这类项目最常见的自我拖延——为了一个更干净的管道，白丢两个月历史数据。</div>
+</section>
+
+<!-- 07 -->
+<section>
+  <div class="sec-head"><span class="n">07</span><h2><span class="cjk">怎么证明有效：三层验收，从"管道通了"到"钱省了"</span></h2></div>
+  <p class="lead">归因项目最容易被拖成"永远在建"的黑洞，因为没有中间验收点。所以我们在三个层面各设红线，任何一层不过，不进入下一层。</p>
+  <table>
+    <thead><tr><th>层<span class="sm">GATE</span></th><th>指标</th><th>红线</th><th>怎么量</th></tr></thead>
+    <tbody>
+      <tr><td>采集健康度</td><td>事件覆盖率 / 重复率 / EMQ / consent 覆盖率 / Click→Session 率</td><td>重复计 0；深事件 ≥95%；EMQ ≥7；Click→Session ≥85%</td><td>sGTM 日志对账 + Meta Test Events + GA4 DebugView</td></tr>
+      <tr><td>采集健康度</td><td>第一方 Cookie 寿命（Safari 实机）</td><td>第 8 天仍在（= 同源反代真的生效）</td><td>Safari 实机种植 + 第 8 天回看，<b>不做推断</b></td></tr>
+      <tr><td>模型可信度</td><td>身份覆盖率、路径完整度、模型间分歧度、与实验偏差</td><td>可归属转化 ≥60%；与 holdout 偏差 ≤15%</td><td>内部对账 + 季度实验</td></tr>
+      <tr><td>商业结果</td><td>MER（总营收÷总花费）、无效花费占比、新客 CAC、重分配后的增量</td><td>按季度定，写进 SOW；<b>不承诺具体涨幅</b></td><td>前后对比 + geo 增量</td></tr>
+    </tbody>
+  </table>
+  <div class="callout warn"><span class="h">一句必须提前说的实话</span>归因不会直接创造增长，它只让<b>同样的预算少浪费一部分</b>。任何把归因包装成"投放加速器"的供应商，第三个月就要开始解释为什么 ROAS 没涨。我们的承诺是<b>口径变清楚、决策变快、无效花费可被指认</b>——这三件都能验收。</div>
+</section>
+
+<!-- 08 -->
+<section>
+  <div class="sec-head"><span class="n">08</span><h2><span class="cjk">软肋与应对：先自己说破，别等你们问</span></h2></div>
+  <p class="lead">挑战者不打无准备的仗。以下是这个方案在你们这类业务里<b>真实存在的短板</b>——它们不会阻止项目成功，但会在第三个月变成质疑。现在讲清楚，比三个月后被追问便宜得多。</p>
+  <div class="weak">
+    <div class="weak-head"><div class="hw">软肋 / 客观现状</div><div class="hr">应对 / 我们怎么处理</div></div>
+    <div class="weak-row">
+      <div class="w"><span class="t">Amazon 与零售是黑箱</span>DTC 的 MTA 看不见站内搜索、看不见 Amazon 广告、更看不见"在你们站上看完、去 Amazon 下单"。只做 DTC 口径，会系统性高估品牌词、低估种草。</div>
+      <div class="r"><span class="t">分成两套口径，不硬拼</span>DTC 内部用 MTA；DTC + Amazon + 零售用 <b>MMM + 品牌搜索增量 + 优惠码/问卷</b>做溢出测量。先承认"这两个世界的数据不互通"，比假装能打通诚实得多。</div>
+    </div>
+    <div class="weak-row">
+      <div class="w"><span class="t">拒同意用户 + iOS 结构性缺口</span>EU/UK 的 consent 拒绝率、Safari ITP、ATT，注定有一部分路径永远看不到。匿名期靠 cookie 串，跨设备靠邮箱，仍然有洞。</div>
+      <div class="r"><span class="t">把它变成一列，而不是一个借口</span>consent_state 入仓，观测值与建模补全值分开报告；缺口用 MMM 与实验兜底。<b>明码标出"我们有 20% 看不见"，比假装 100% 可信更能赢得数据团队的信任。</b></div>
+    </div>
+    <div class="weak-row">
+      <div class="w"><span class="t">长尾触点没有 click ID</span>KOL、播客、Reddit 口碑、线下渠道、YouTube 测评——这些恰恰是摄像头品类的高影响触点，但拿不到干净的归因键。</div>
+      <div class="r"><span class="t">用"可测量的替代品"接住</span>专属优惠码 / 落地页短链 / 结账后问卷选项 / 品牌词搜索量增量，四件套把长尾变成可估的区间，而不是"其他"。</div>
+    </div>
+    <div class="weak-row">
+      <div class="w"><span class="t">Shopify 结账页塞不进脚本</span>checkout.liquid 已下线；自 <b>2025-08-28</b> 起 Checkout 设置里的 additional scripts <b>只读、不再生效</b>。深事件只能走官方沙盒（Customer Events / Web Pixels）或服务端，不能再往结账页塞自定义 JS。<b>Shopify 官方也承认：换成 pixels 后第三方收到的事件数会下降，因为只在已获同意时跟踪</b>——这正是 consent 状态必须入仓的原因。</div>
+      <div class="r"><span class="t">走官方唯一通道</span>Customer Events（Web Pixels API）订阅标准事件 + 服务端 CAPI 补发，配 event_id 去重。这是唯一被官方认可、且不会随主题更新失效的路。</div>
+    </div>
+    <div class="weak-row">
+      <div class="w"><span class="t">没有 owner，三个月后一定烂尾</span>GTM 谁改、BQ 谁付费、看板谁看、模型谁重训——如果没有一个明确的人，交付完就是一次性咨询，第二季度数据就开始漂。</div>
+      <div class="r"><span class="t">把 owner 写进启动条件</span>项目启动前先指定一位<b>增长/数据侧的唯一 owner</b>，我们出文档、出 runbook、出培训，但所有权必须在你们内部。这也是我们敢承诺"能交接"的原因。</div>
+    </div>
+    <div class="weak-row">
+      <div class="w"><span class="t">合规与数据出境</span>hashed PII 回传平台、BQ 数据集放哪个区域、中国团队能不能访问——每一条都可能让项目在法务那里停两周。</div>
+      <div class="r"><span class="t">先过合规，再谈架构</span>数据区域与 PII 处理方式在 P0 就定稿（DPA / SCC / 最小化字段 / 只传 hash），BQ 与 sGTM 部署区域按你们的法务结论选。<b>不先解决这个，写多少 dbt 都白搭。</b></div>
+    </div>
+  </div>
+</section>
+
+<!-- 09 -->
+<section>
+  <div class="sec-head"><span class="n">09</span><h2><span class="cjk">合作形态：三档，建议从最小闭环开始</span></h2></div>
+  <p class="lead">不卖"年度框架"，先卖一个<b>能验收的闭环</b>。跑通一个市场、一条产品线，再复制到多市场——摄像头品类 SKU 多、市场多，一次性铺开的项目 90% 会烂在中间。</p>
+  <table>
+    <thead><tr><th>形态<span class="sm">ENGAGEMENT</span></th><th>范围</th><th>产出</th><th>适合什么时候</th></tr></thead>
+    <tbody>
+      <tr><td>A · 诊断包</td><td>1 周，只看不改</td><td>gap 清单 + 目标架构 + 90 天路线图 + 预算估算</td><td>现在——明天会后就能启动，风险最低</td></tr>
+      <tr><td>B · 底座建设</td><td>4–6 周，改管道</td><td>sGTM + CAPI/EC + CMP/Consent Mode v2 + BQ 全量落库 + 身份字段</td><td>诊断确认断点后</td></tr>
+      <tr><td>C · 建模 + 陪跑</td><td>6–8 周建模，之后按季度</td><td>dbt 项目 + 身份图 + MTA 四模型 + 看板 + 反向 ETL + 季度实验校准</td><td>数据攒够 6–8 周后</td></tr>
+    </tbody>
+  </table>
+  <div class="callout key"><span class="h">开始的三个前提（缺一个就别签）</span>
+  ① <b>数据权限</b>：GTM 容器、GA4 管理员、BQ 项目、Shopify 后台、各平台 API；② <b>一个 owner</b>：能拍板口径、能协调 IT 的人；③ <b>一个季度</b>：愿意等到实验校准后再动预算，而不是第二周就问"ROAS 怎么还没涨"。</div>
+</section>
+
+</div>
+
+<div class="concl">
+  <div class="concl-in">
+    <div class="eyebrow">一句话结论</div>
+    <p>归因的胜负不在模型，在<b>管道有没有把"同一个人"和"他同意了什么"一起记下来</b>。管道通了，MTA 只是管末的一个 SQL；管道不通，再贵的模型也只是给噪声做回归。</p>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <div class="note">
+      文中平台机制（Consent Mode v2 / CAPI / Web Pixels / BigQuery 导出 / Markov 归因）为公开技术事实；标注 <span class="tag warn">待确认</span> 的现状判断需以贵司后台实际核查为准。
+    </div>
+    <div class="disc">本文档为提案讨论稿，不含效果承诺。所有 KPI 与排期以双方确认的 SOW 为准。</div>
+  </div>
+</footer>
+
+</body>
+</html>
