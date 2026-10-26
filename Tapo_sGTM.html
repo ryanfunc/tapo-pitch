@@ -218,10 +218,15 @@
     <div class="arrow">↓ 同一事件双发，<span class="mono">event_id</span> 去重（否则 Purchase 双计、ROAS 虚高）</div>
     <div class="node split"><span class="t">分两路 · SPLIT</span><span class="d"><b>路 A · 实时回传</b>：Meta CAPI + Google Enhanced Conversions + TikTok Events API → 喂算法出学习期（<b>算法只吃这条，不吃数仓结果</b>）<br><b>路 B · 入仓沉淀</b>：GA4→BigQuery 全量导出 + sGTM 原始事件日志 → 真相层</span></div>
     <div class="arrow">↓ 路 B（Phase 2 才建，采集在 Phase 1 就开）</div>
-    <div class="node ware"><span class="t">仓内建模 · MODELING（dbt）</span><span class="d">身份解析（hash email 确定性 + visitor_id 概率拼接）→ 路径重建 → <b>Markov / Shapley 多触点归因</b> → 实验校准 → 预算再分配建议</span></div>
+    <div class="node ware"><span class="t">仓内建模 · MODELING（dbt）</span><span class="d">身份解析（hash email 确定性 + visitor_id 概率拼接）→ 路径重建 → <b>Markov / Shapley 多触点归因</b> → <b>逐单分摊（每单一个触点价值向量）</b> → 实验校准 → 预算再分配建议</span></div>
     <div class="arrow">↓</div>
     <div class="node"><span class="t">输出 · ACTIVATION</span><span class="d">BI 看板（渠道 / 素材 / 人群 / 新老客 / consent 分层）+ <b>反向 ETL</b>（Hightouch / Census）把仓内拼接后的转化与高价值人群回灌 Meta / Google / TikTok</span></div>
   </div>
+
+  <div class="callout"><span class="h">"每一单给一个分摊结果"要单独设计，不是模型顺带出来的</span>
+  月度归因只回答"这个渠道整体贡献多少"；逐单打分要回答"<b>这一单的 $100 里，Meta 该记多少</b>"。做法是：先学出渠道之间的转移概率（Markov），再对每一单的真实触点序列算各触点的边际贡献，最后归一到订单金额。<br>
+  <b>三条硬约束：</b>① 分摊之和 = 订单金额，差一分钱财务就会否掉整套模型；② 单触点订单 100% 归该触点；③ 无可识别触点的订单进 "Direct / 未知" 桶，<b>不硬摊</b>——硬摊会让所有渠道的功劳一起虚高。<br>
+  <b>一句反直觉的：</b>分钟级打分拿到的是"初版"，次日重算才是"定稿"——触点在当时多为匿名，要等订单里的邮箱 hash 回来才能串上。<b>所以推荐小时级出初版 + 次日覆盖。</b></div>
 
   <h3 style="margin-top:30px;">为什么是 sGTM，而不是"三个原生插件各自 CAPI"</h3>
   <p class="lead" style="margin-bottom:14px;">全场最容易被跳过、也最影响结论的一段。你们大概率已经装了 Shopify 的三个官方渠道——所以问题从来不是"有没有服务端回传"，是<b>三个服务端通道之间对不上账</b>。</p>
@@ -301,7 +306,8 @@ stg_ads__spend_daily       <span class="c">-- platform, campaign, adset, creativ
 int_identity_graph         <span class="c">-- identity_key, 成员键集合, 置信度, 首次/末次见到时间</span>
 <span class="c">-- 5) 路径与归因结果</span>
 fct_paths                  <span class="c">-- identity_key, 有序 touch 序列, 转化标志, lookback_days</span>
-fct_attribution_daily      <span class="c">-- date, channel, model, credit, credit_low, credit_high</span></pre>
+fct_attribution_daily      <span class="c">-- date, channel, model, credit, credit_low, credit_high</span>
+fct_order_attribution      <span class="c">-- order_id, channel, credit, model_version, is_final, sum_check</span></pre>
 
   <div class="two" style="margin-top:20px;">
     <div class="callout key"><span class="h">路径构建的四条硬规则</span>
