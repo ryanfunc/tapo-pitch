@@ -112,7 +112,7 @@
         <div class="row"><div class="lbl">触点</div><div class="d">Meta / Google / TikTok / KOL / 邮件 / 自然与站内搜索 —— 全部带 fbclid · gclid · ttclid · UTM</div></div>
         <div class="row"><div class="lbl">采集</div><div class="d">Shopify <b>Web Pixels</b>（官方唯一的客户端 checkout 采集口）+ 服务端 <b>sGTM</b>（自有子域）+ <b>CMP</b> 让每个事件带上 consent 状态</div></div>
         <div class="row amber"><div class="lbl">分两路</div><div class="d"><b>路 A 实时回传</b>：Meta CAPI / Google Enhanced Conversions → 喂算法（算法只吃这条）<br><b>路 B 入仓</b>：GA4→BigQuery 全量导出 + 服务端事件日志 → 真相层。用 <span class="mono">event_id</span> 去重</div></div>
-        <div class="row green"><div class="lbl">建模</div><div class="d">dbt：身份解析（邮箱 hash 确定性 + visitor_id 概率）→ 路径重建 → <b>Markov / Shapley 多触点归因</b> → 实验校准 → 预算建议</div></div>
+        <div class="row green"><div class="lbl">建模</div><div class="d">dbt：身份解析（邮箱 hash 确定性 + visitor_id 概率）→ 路径重建 → <b>Markov / Shapley 多触点归因</b> → <b>逐单分摊</b>（每单给出一组触点价值，之和 = 订单金额）→ 实验校准 → 预算建议</div></div>
         <div class="row"><div class="lbl">输出</div><div class="d">看板（渠道 / 素材 / 人群 / 新老客 / consent 分层）+ <b>反向 ETL</b> 把仓内真相回灌 Meta / Google / TikTok</div></div>
       </div>
     </section>
